@@ -23,10 +23,10 @@ def create_device(device_config: GoodWe):
         return GoodWeBat(device_config.id, component_config, client, version)
 
     def create_counter_component(component_config: GoodWeCounterSetup):
-        return GoodWeCounter(device_config.id, component_config, client)
+        return GoodWeCounter(device_config.id, component_config, client, version)
 
     def create_inverter_component(component_config: GoodWeInverterSetup):
-        return GoodWeInverter(device_config.id, component_config, client)
+        return GoodWeInverter(device_config.id, component_config, client, version)
 
     def update_components(components: Iterable[good_we_component_classes]):
         with client as c:
