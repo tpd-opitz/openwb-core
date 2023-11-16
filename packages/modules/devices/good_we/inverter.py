@@ -9,25 +9,34 @@ from modules.common.fault_state import ComponentInfo
 from modules.common.modbus import ModbusDataType
 from modules.common.store import get_inverter_value_store
 from modules.devices.good_we.config import GoodWeInverterSetup
+from modules.devices.good_we.version import GoodWeVersion
 
 
 class GoodWeInverter:
     def __init__(self,
                  modbus_id: int,
                  component_config: Union[Dict, GoodWeInverterSetup],
-                 tcp_client: modbus.ModbusTcpClient_) -> None:
+                 tcp_client: modbus.ModbusTcpClient_,
+                 version: GoodWeVersion) -> None:
         self.__modbus_id = modbus_id
         self.component_config = dataclass_from_dict(GoodWeInverterSetup, component_config)
         self.__tcp_client = tcp_client
+        self._version = version
         self.store = get_inverter_value_store(self.component_config.id)
         self.component_info = ComponentInfo.from_component_config(self.component_config)
 
     def update(self) -> None:
         with self.__tcp_client:
-            power = sum([self.__tcp_client.read_holding_registers(reg, ModbusDataType.UINT_32,
-                        unit=self.__modbus_id) for reg in [35105, 35109, 35113, 35117]]) * -1
-            exported = self.__tcp_client.read_holding_registers(
-                35191, ModbusDataType.UINT_32, unit=self.__modbus_id) * 100
+            if self._version == GoodWeVersion.V_1_7 or self._version == GoodWeVersion.V_1_10:
+                power = sum([self.__tcp_client.read_holding_registers(reg, ModbusDataType.UINT_32,
+                            unit=self.__modbus_id) for reg in [35105, 35109, 35113, 35117]]) * -1
+                exported = self.__tcp_client.read_holding_registers(
+                    35191, ModbusDataType.UINT_32, unit=self.__modbus_id) * 100
+            elif self._version == GoodWeVersion.V_1_1:
+                power = sum([self.__tcp_client.read_holding_registers(reg, ModbusDataType.UINT_16,
+                            unit=self.__modbus_id) for reg in [35105, 35109, 35113, 35117, 35304, 35307]]) * -1
+                exported = self.__tcp_client.read_holding_registers(
+                    35191, ModbusDataType.UINT_32, unit=self.__modbus_id) * 100
 
         inverter_state = InverterState(
             power=power,
