@@ -29,10 +29,10 @@ def create_device(device_config: GoodWe):
         return GoodWeInverter(device_config.id, component_config, client, version)
 
     def update_components(components: Iterable[good_we_component_classes]):
-        with client as c:
+        with client:
             for component in components:
                 with SingleComponentUpdateContext(component.component_info):
-                    component.update(c)
+                    component.update()
 
     try:
         version = GoodWeVersion(device_config.configuration.version)
