@@ -34,11 +34,13 @@ class GoodWeBat:
                     35182, ModbusDataType.UINT_32, unit=self.__modbus_id)*-1
             elif self._version == GoodWeVersion.V_1_1:
                 # zwei Batterieeingänge
-                p_battery_1 = self.__tcp_client.read_holding_registers(
-                    35182, ModbusDataType.INT_32, unit=self.__modbus_id)
-                p_battery_2 = self.__tcp_client.read_holding_registers(
-                    35264, ModbusDataType.UINT_32, unit=self.__modbus_id)
-                power = (p_battery_1+p_battery_2)*-1
+                # p_battery_1 = self.__tcp_client.read_holding_registers(
+                #     35182, ModbusDataType.UINT_32, unit=self.__modbus_id)
+                # p_battery_2 = self.__tcp_client.read_holding_registers(
+                #     35264, ModbusDataType.UINT_32, unit=self.__modbus_id)
+                # power = (p_battery_1+p_battery_2)*-1
+                power = self.__tcp_client.read_holding_registers(
+                    35182, ModbusDataType.INT_32, unit=self.__modbus_id) * -1
             soc = self.__tcp_client.read_holding_registers(37007, ModbusDataType.UINT_16, unit=self.__modbus_id)
             imported = self.__tcp_client.read_holding_registers(
                 35206, ModbusDataType.UINT_32, unit=self.__modbus_id) * 100
