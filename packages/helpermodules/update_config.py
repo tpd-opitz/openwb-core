@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 
 
 class UpdateConfig:
-    DATASTORE_VERSION = 29
+    DATASTORE_VERSION = 30
     valid_topic = [
         "^openWB/bat/config/configured$",
         "^openWB/bat/set/charging_power_left$",
@@ -1047,3 +1047,14 @@ class UpdateConfig:
                 Pub().pub(topic.replace("openWB/", "openWB/set/"), payload)
         self._loop_all_received_topics(upgrade)
         Pub().pub("openWB/system/datastore_version", 29)
+
+    def upgrade_datastore_29(self) -> None:
+        def upgrade(topic: str, payload) -> None:
+            if re.search("openWB/system/device/[0-9]+/config", topic) is not None:
+                configuration_payload = decode_payload(payload)
+                if configuration_payload.get("type") == "varta":
+                    if configuration_payload.get("modbus_id") is None:
+                        configuration_payload["configuration"].update({"modbus_id": 1})
+                        Pub().pub(topic.replace("openWB/", "openWB/set/"), configuration_payload)
+        self._loop_all_received_topics(upgrade)
+        Pub().pub("openWB/system/datastore_version", 30)

@@ -17,12 +17,12 @@ class VartaBatModbus:
         self.store = get_bat_value_store(self.component_config.id)
         self.component_info = ComponentInfo.from_component_config(self.component_config)
 
-    def update(self, client: ModbusTcpClient_) -> None:
-        self.set_state(self.get_state(client))
+    def update(self, client: ModbusTcpClient_, modbus_id: int) -> None:
+        self.set_state(self.get_state(client, modbus_id))
 
-    def get_state(self, client: ModbusTcpClient_) -> BatState:
-        soc = client.read_holding_registers(1068, ModbusDataType.INT_16, unit=1)
-        power = client.read_holding_registers(1066, ModbusDataType.INT_16, unit=1)
+    def get_state(self, client: ModbusTcpClient_, modbus_id: int) -> BatState:
+        soc = client.read_holding_registers(1068, ModbusDataType.INT_16, unit=modbus_id)
+        power = client.read_holding_registers(1066, ModbusDataType.INT_16, unit=modbus_id)
         return BatState(
             power=power,
             soc=soc,

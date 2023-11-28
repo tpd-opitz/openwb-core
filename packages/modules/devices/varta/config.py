@@ -5,8 +5,9 @@ from modules.common.component_setup import ComponentSetup
 
 @auto_str
 class VartaConfiguration:
-    def __init__(self, ip_address: Optional[str] = None):
+    def __init__(self, ip_address: Optional[str] = None, modbus_id: int = 255):
         self.ip_address = ip_address
+        self.modbus_id = modbus_id
 
 
 @auto_str
@@ -68,3 +69,19 @@ class VartaCounterSetup(ComponentSetup[VartaCounterConfiguration]):
                  id: int = 0,
                  configuration: VartaCounterConfiguration = None) -> None:
         super().__init__(name, type, id, configuration or VartaCounterConfiguration())
+
+
+@auto_str
+class VartaInverterConfiguration:
+    def __init__(self):
+        pass
+
+
+@auto_str
+class VartaInverterSetup(ComponentSetup[VartaInverterConfiguration]):
+    def __init__(self,
+                 name: str = "Varta Wechselrichter",
+                 type: str = "inverter",
+                 id: int = 0,
+                 configuration: VartaInverterConfiguration = None) -> None:
+        super().__init__(name, type, id, configuration or VartaInverterConfiguration())
