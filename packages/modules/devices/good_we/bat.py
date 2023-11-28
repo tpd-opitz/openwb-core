@@ -31,11 +31,11 @@ class GoodWeBat:
                 power = self.__tcp_client.read_holding_registers(35183, ModbusDataType.INT_16, unit=self.__modbus_id)*-1
             elif self._version == GoodWeVersion.V_1_10:
                 power = self.__tcp_client.read_holding_registers(
-                    35182, ModbusDataType.UINT_32, unit=self.__modbus_id)*-1
+                    35182, ModbusDataType.INT_32, unit=self.__modbus_id)*-1
             elif self._version == GoodWeVersion.V_1_1:
                 # zwei Batterieeingänge
                 # p_battery_1 = self.__tcp_client.read_holding_registers(
-                #     35182, ModbusDataType.UINT_32, unit=self.__modbus_id)
+                #     35182, ModbusDataType.INT_32, unit=self.__modbus_id)
                 # p_battery_2 = self.__tcp_client.read_holding_registers(
                 #     35264, ModbusDataType.UINT_32, unit=self.__modbus_id)
                 # power = (p_battery_1+p_battery_2)*-1
