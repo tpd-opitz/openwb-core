@@ -18,7 +18,7 @@ class VartaInverter:
         self.component_info = ComponentInfo.from_component_config(self.component_config)
 
     def update(self, client: ModbusTcpClient_, modbus_id: int) -> None:
-        power = client.read_holding_registers(1102, ModbusDataType.UINT_16, unit=modbus_id)
+        power = client.read_holding_registers(1102, ModbusDataType.INT_16, unit=modbus_id)
         exported = self.sim_counter.sim_count(power)[1]
 
         inverter_state = InverterState(
