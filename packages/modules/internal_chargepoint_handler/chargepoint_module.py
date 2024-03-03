@@ -115,10 +115,11 @@ class ChargepointModule(AbstractChargepoint):
                 chargepoint_state = ChargepointState()
                 chargepoint_state.plug_state = False
                 chargepoint_state.charge_state = False
-                chargepoint_state.imported = self.old_chargepoint_state.imported
-                chargepoint_state.exported = self.old_chargepoint_state.exported
+                chargepoint_state.imported = 0 #self.old_chargepoint_state.imported
+                chargepoint_state.exported = 0 #self.old_chargepoint_state.exported
                 store_state(chargepoint_state)
                 e.args += (msg,)
+                log.error(msg + f" cp{self.local_charge_point_num} -Counter set to '0'")
                 raise e
             else:
                 chargepoint_state = self.old_chargepoint_state
