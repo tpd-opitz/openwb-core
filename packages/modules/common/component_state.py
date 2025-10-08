@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from helpermodules import timecheck
 
 from helpermodules.auto_str import auto_str
+from helpermodules.timecheck import create_timestamp, create_unix_timestamp_current_quarter_hour
 
 log = logging.getLogger(__name__)
 
@@ -233,10 +234,22 @@ class ChargepointState:
 class TariffState:
     def __init__(self,
                  prices: Optional[Dict[str, float]] = None,
-                 prices_per_hour: int = 24) -> None:
-        self.prices = prices
+                 prices_per_hour: int = 1) -> None:
+        self._prices = prices
         self.prices_per_hour = prices_per_hour
 
+    @property
+    def prices(self):
+        current_quarter_hour = create_unix_timestamp_current_quarter_hour()
+        for timestamp in list(self._prices.keys()):
+            if timestamp < str(int(current_quarter_hour)):
+                self._prices.pop(timestamp)
+        log.debug(f"Preisliste hat {len(self._prices)} Einträge")
+        return self._prices
+ 
+    @prices.setter
+    def prices(self, prices: Optional[Dict[str, float]] = None) -> None:
+        self._prices = prices
 
 @auto_str
 class IoState:

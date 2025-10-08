@@ -12,6 +12,7 @@ from control.optional_data import OptionalData
 from helpermodules import hardware_configuration
 from helpermodules.constants import NO_ERROR
 from helpermodules.pub import Pub
+from helpermodules.timecheck import create_timestamp
 from helpermodules.utils import thread_handler
 from modules.common.configurable_tariff import ConfigurableElectricityTariff
 from modules.common.configurable_monitoring import ConfigurableMonitoring
@@ -68,15 +69,30 @@ class Optional(OcppMixin):
             log.exception("Fehler im Optional-Modul")
             return False
 
-    def et_get_current_price(self) -> float:
+    def __get_first_entry(self, prices: dict[str, float]) -> tuple[str, float]:
         if self.et_provider_available():
             prices = self.data.et.get.prices
-            timestamp, first = next(iter(prices.items()))
+            timestamp, first =  next(iter(prices.items()))
+            price_timeslot_seconds = self.__calculate_price_timeslot_length(prices)
+            now = int(create_timestamp())
+            while int(timestamp) > now - price_timeslot_seconds:
+               prices.remove(timestamp)
+               self.data.et.get.prices= prices
+               timestamp, first =  next(iter(prices.items()))
+
             log.debug(f"first in prices list: {first} from " +
                       f"{datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M')}")
-            return first
+            return timestamp, first
         else:
             raise Exception("Kein Anbieter für strompreisbasiertes Laden konfiguriert.")
+
+    def __get_current_timeslot_start(self) -> float:
+         timestamp, first =  self.__get_first_entry(prices)
+         return timestamp
+
+    def et_get_current_price(self) -> float:
+         timestamp, first =  self.__get_first_entry(prices)
+         return first
 
     def __calculate_price_timeslot_length(self, prices: dict) -> int:
         first_timestamps = list(prices.keys())[:2]
@@ -99,22 +115,13 @@ class Optional(OcppMixin):
         try:
             prices = self.data.et.get.prices
             price_timeslot_seconds = self.__calculate_price_timeslot_length(prices)
-            now = (
-                create_unix_timestamp_current_full_hour()
-                if 3600 == price_timeslot_seconds
-                else create_unix_timestamp_current_quarter_hour()
-            )
-
-            log.debug(f"current full hour: "
-                      f"{int(now)} {datetime.datetime.fromtimestamp(int(now)).strftime('%Y-%m-%d %H:%M')} "
-                      f"Plan target Date: {int(now) + remaining_time} "
-                      f"{datetime.datetime.fromtimestamp(int(now) + remaining_time).strftime('%Y-%m-%d %H:%M')}")
-
+            now = self.__get_current_timeslot_start(prices)
             prices = {
-                timestamp: price
-                for timestamp, price in prices.items()
-                if (  # is current timeslot or futur
-                    int(timestamp) >= int(now) and
+                timestamp: price 
+                for timestamp, price in  prices.items() 
+                if (
+                    # is current timeslot or futur 
+                    int(timestamp) >= int(now)  and
                     # ends before plan target time
                     int(timestamp) + price_timeslot_seconds <= int(now) + remaining_time
                     )

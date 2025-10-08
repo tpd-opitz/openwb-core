@@ -55,4 +55,6 @@ class ConfigurableElectricityTariff(Generic[T_TARIFF_CONFIG]):
                     'Die Preisliste startet nicht mit der aktuellen Stunde. '
                     'Abgelaufene Einträge wurden entfernt.')
                 tariff_state.prices.pop(timestamp)
+        self.fault_state.no_error(
+            f'Die Preisliste hat {len(tariff_state.prices)} Einträge. ')
         return tariff_state

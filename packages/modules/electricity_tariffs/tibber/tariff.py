@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 from typing import Dict, Callable
+import logging
+import json
+
+from datetime import datetime
+from typing import Dict
 from helpermodules import timecheck
 import json
 
@@ -48,6 +53,7 @@ def fetch_prices(config: TibberTariffConfiguration) -> Dict[str, float]:
     data = json.dumps(payload)
     response = req.get_http_session().post('https://api.tibber.com/v1-beta/gql', headers=headers, data=data, timeout=6)
     response_json = response.json()
+    log.debug(json.dumps(response_json))
     if response_json.get("errors") is None:
         today_prices = _get_sorted_price_data(response_json, 'today')
         tomorrow_prices = _get_sorted_price_data(response_json, 'tomorrow')
@@ -55,8 +61,10 @@ def fetch_prices(config: TibberTariffConfiguration) -> Dict[str, float]:
         current_hour = timecheck.create_unix_timestamp_current_quarter_hour()
         log.debug(f"current full hour: {int(current_hour)} "
                   f"{datetime.datetime.fromtimestamp(int(current_hour)).strftime('%Y-%m-%d %H:%M')} ")
+        log.debug(f"tibber response: {sorted_market_prices}")
+        current_hour = timecheck.create_unix_timestamp_current_quarter_hour()
         return {
-            str(timecheck.convert_to_timestamp(timeslot['startsAt'])): float(timeslot['total']) / AS_EURO_PER_Wh
+            str(timecheck.convert_to_timestamp(timeslot['startsAt'])): float(timeslot['total']) / 1000
             for timeslot in sorted_market_prices
             if timecheck.convert_to_timestamp(timeslot['startsAt']) >= int(current_hour)  # is current timeslot or futur
             }
