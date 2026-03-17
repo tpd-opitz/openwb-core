@@ -37,15 +37,19 @@
       <div class="col">
         <div>{{ props.limitMode == 'amount' ? 'Geladen' : 'Ladestand' }}</div>
         <div>
-          {{
-            props.limitMode === 'amount'
-              ? formatEnergy(props.currentValue)
-              : !props.vehicleSocType
-                ? 'Kein SoC-Modul konfiguriert'
-                : props.currentValue + '%'
-          }}
+          <slot name="value">
+            {{
+              props.limitMode === 'amount'
+                ? formatEnergy(props.currentValue)
+                : !props.vehicleSocType
+                  ? 'Kein SoC-Modul konfiguriert'
+                  : props.currentValue + '%'
+            }}
+          </slot>
           <q-icon
-            v-if="props.vehicleSocType === 'manual' && props.limitMode !== 'amount'"
+            v-if="
+              props.vehicleSocType === 'manual' && props.limitMode !== 'amount'
+            "
             name="edit"
             size="xs"
             class="q-ml-xs cursor-pointer"
@@ -54,7 +58,11 @@
             <q-tooltip>Ladestand eingeben</q-tooltip>
           </q-icon>
           <q-icon
-            v-else-if="props.vehicleSocType && props.vehicleSocType !== 'manual' && props.limitMode !== 'amount'"
+            v-else-if="
+              props.vehicleSocType &&
+              props.vehicleSocType !== 'manual' &&
+              props.limitMode !== 'amount'
+            "
             name="refresh"
             size="xs"
             class="q-ml-xs cursor-pointer"
