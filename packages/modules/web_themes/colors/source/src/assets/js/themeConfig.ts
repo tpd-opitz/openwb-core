@@ -525,9 +525,9 @@ function readCookie() {
 				shDevices.get(i)!.setShowInGraph(false)
 			})
 		}
-		/* if (prefs.showCtr !== undefined) {
+		if (prefs.showCtr !== undefined) {
 			globalConfig.countersToShow = prefs.showCtr.map((i) => +i)
-		} */
+		}
 		if (prefs.showLG !== undefined) {
 			globalConfig.setGraphPreference(prefs.showLG ? 'live' : 'today')
 		}
