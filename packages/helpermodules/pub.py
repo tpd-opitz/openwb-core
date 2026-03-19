@@ -13,7 +13,7 @@ class PubSingleton:
         self.publisher = InternalBrokerPublisher()
         self.publisher.start_loop()
 
-    def pub(self, topic: str, payload, qos: int = 0, no_json: bool = False, retain: bool = True) -> None:
+    def pub(self, topic: str, payload, qos: int = 0, retain: bool = True, no_json: bool = False) -> None:
         if payload == "" or no_json:
             self.publisher.client.publish(topic, payload, qos=qos, retain=retain)
         else:
