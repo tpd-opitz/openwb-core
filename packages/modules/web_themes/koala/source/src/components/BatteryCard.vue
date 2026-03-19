@@ -68,7 +68,9 @@
     </q-card-section>
     <q-separator inset class="q-mt-sm" />
     <q-card-section>
-      <SliderDouble :current-value="soc" :readonly="true" limit-mode="none" />
+      <SliderDouble :current-value="soc" :readonly="true" limit-mode="none">
+        <template #value> {{ soc }}% </template>
+      </SliderDouble>
     </q-card-section>
   </q-card>
   <BatterySettingsDialog :battery-id="props.batteryId" ref="dialog" />
