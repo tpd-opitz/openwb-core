@@ -57,7 +57,7 @@ NO_MODULE = {"type": None, "configuration": {}}
 
 class UpdateConfig:
 
-    DATASTORE_VERSION = 113
+    DATASTORE_VERSION = 114
 
     valid_topic = [
         "^openWB/bat/config/bat_control_permitted$",
@@ -2955,6 +2955,15 @@ class UpdateConfig:
                                  f"'{device_name}' auf Typ '{new_type}'."),
                                 MessageType.INFO,
                             )
-
         self._loop_all_received_topics(upgrade)
         self._append_datastore_version(113)
+
+    def upgrade_datastore_114(self) -> None:
+        def upgrade(topic: str, payload) -> None:
+            if "openWB/general/charge_log_data_config" == topic:
+                config = decode_payload(payload)
+                if config.get("vehicle_odometer") is None:
+                    config["vehicle_odometer"] = False
+                return {topic: config}
+        self._loop_all_received_topics(upgrade)
+        self._append_datastore_version(114)
