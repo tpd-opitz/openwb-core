@@ -7,7 +7,9 @@
 			fill="var(--color-bg)"
 			opacity="90%"
 			stroke="var(--color-menu)"
+			stroke-width="1"
 		/>
+
 		<text
 			text-anchor="start"
 			x="5"
@@ -133,7 +135,14 @@ const props = defineProps<{
 //	return Object.values(props.entry).filter((v) => v > 0).length
 //}
 function height() {
-	return Object.values(props.entry).filter((v) => v > 0).length * 18 + 40
+	return (
+		Object.entries(props.entry).filter(
+			([k, v]) =>
+				k != 'selfUsage' && !k.startsWith('soc') && v != null && v > 0,
+		).length *
+			20 +
+		2
+	)
 }
 function pvs() {
 	return Object.entries(props.entry)

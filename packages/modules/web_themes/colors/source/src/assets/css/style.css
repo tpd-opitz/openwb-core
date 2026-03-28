@@ -416,7 +416,3 @@ swiper-slide {
 option {
 	color: blue;
 }
-.ttarea .ttmessage {visibility: hidden}
-.ttarea:hover  .ttmessage {
-    visibility: visible;
-}
