@@ -107,7 +107,7 @@
 				:width="boxwidth"
 			/>
 			<PgToolTipLine
-				v-if="globalConfig.showPrices"
+				v-if="etData.active"
 				cat="price"
 				:indent="5"
 				:power="entry.price"
@@ -122,7 +122,7 @@
 import type { ScaleTime } from 'd3'
 import { timeFormat } from 'd3'
 import { itemNames, type GraphDataItem } from './model'
-import { globalConfig } from '@/assets/js/themeConfig'
+import { etData } from '@/components/priceChart/model'
 import PgToolTipLine from './PgToolTipLine.vue'
 
 const props = defineProps<{
@@ -131,17 +131,12 @@ const props = defineProps<{
 	xScale: ScaleTime<number, number>
 }>()
 
-//function linecount() {
-//	return Object.values(props.entry).filter((v) => v > 0).length
-//}
 function height() {
 	return (
 		Object.entries(props.entry).filter(
 			([k, v]) =>
 				k != 'selfUsage' && !k.startsWith('soc') && v != null && v > 0,
-		).length *
-			20 +
-		2
+		).length * 20 + 2
 	)
 }
 function pvs() {
