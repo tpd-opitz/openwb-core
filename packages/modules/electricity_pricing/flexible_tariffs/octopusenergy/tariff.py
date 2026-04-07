@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import logging
+import pytz
 from datetime import datetime, timedelta, timezone
-from typing import Dict
-from zoneinfo import ZoneInfo
+from typing import Dict, Optional
 
 from modules.electricity_pricing.flexible_tariffs.octopusenergy.config import (OctopusEnergyTariffConfiguration,
                                                                                OctopusEnergyTariff)
@@ -12,7 +12,7 @@ from modules.common.component_state import TariffState
 
 log = logging.getLogger(__name__)
 
-GERMAN_TZ = ZoneInfo("Europe/Berlin")
+GERMAN_TZ = pytz.timezone("Europe/Berlin")
 
 
 class OctopusEnergyClient:
@@ -118,7 +118,7 @@ def get_rate_from_simple_product(unit_rate_info: dict) -> float:
     return float(unit_rate_info['latestGrossUnitRateCentsPerKwh']) / 100 / 1000
 
 
-def get_rate_from_time_of_use_product(unit_rate_info: dict, hour_time_utc: datetime) -> float:
+def get_rate_from_time_of_use_product(unit_rate_info: dict, hour_time_utc: datetime) -> Optional[float]:
     local_hour_time = hour_time_utc.astimezone(GERMAN_TZ).time()  # hour_time is UTC, time of use returns local time
 
     for rate_info in unit_rate_info['rates']:

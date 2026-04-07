@@ -90,9 +90,9 @@ EXPECTED_PRICES_WINTER_TIME = {'1793624400': 0.0003,  # 2026-11-02 14:00
 @pytest.mark.parametrize(
     "now, expected_prices",
     [
-        # 2 Stunden fürher wegen UTC
+        # 2 Stunden früher wegen UTC
         pytest.param(datetime(2026, 4, 2, 12, 3, 0, tzinfo=timezone.utc), EXPECTED_PRICES_SUMMER_TIME),
-        # 1 Stunde fürher wegen UTC
+        # 1 Stunde früher wegen UTC
         pytest.param(datetime(2026, 11, 2, 13, 3, 0, tzinfo=timezone.utc), EXPECTED_PRICES_WINTER_TIME)
     ])
 def test_build_tariff_state(now: datetime, expected_prices: Dict[str, float], monkeypatch):
