@@ -40,7 +40,7 @@ class AlphaEssCounter(AbstractCounter):
                 0x6, [modbus.ModbusDataType.INT_32] * 3, unit=self.__modbus_id)
             exported *= 10
             imported *= 10
-            imported, exported = self.peak_filter(power, imported, exported)
+            imported, exported = self.peak_filter.check_values(power, imported, exported)
             currents = [val / 230 for val in self.__tcp_client.read_holding_registers(
                 0x0000, [ModbusDataType.INT_32]*3, unit=self.__modbus_id)]
             counter_state = CounterState(
@@ -55,7 +55,7 @@ class AlphaEssCounter(AbstractCounter):
                 val * 10 for val in self.__tcp_client.read_holding_registers(
                     0x0010, [ModbusDataType.INT_32] * 2, unit=self.__modbus_id
                 )]
-            imported, exported = self.peak_filter(power, imported, exported)
+            imported, exported = self.peak_filter.check_values(power, imported, exported)
             frequency = self.__tcp_client.read_holding_registers(
                 0x001A, ModbusDataType.UINT_16, unit=self.__modbus_id) / 100
             currents = self.__tcp_client.read_holding_registers(
