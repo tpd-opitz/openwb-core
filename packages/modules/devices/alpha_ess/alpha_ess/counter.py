@@ -10,6 +10,8 @@ from modules.common.component_type import ComponentDescriptor
 from modules.common.fault_state import ComponentInfo, FaultState
 from modules.common.modbus import ModbusDataType
 from modules.common.store import get_counter_value_store
+from modules.common.utils.peak_filter import PeakFilter
+from modules.common.component_type import ComponentType
 
 
 class KwargsDict(TypedDict):
@@ -29,6 +31,7 @@ class AlphaEssCounter(AbstractCounter):
         self.__modbus_id: int = self.kwargs['modbus_id']
         self.store = get_counter_value_store(self.component_config.id)
         self.fault_state = FaultState(ComponentInfo.from_component_config(self.component_config))
+        self.peak_filter = PeakFilter(ComponentType.COUNTER, self.component_config.id, self.fault_state)
 
     def update(self):
         time.sleep(0.1)
@@ -37,14 +40,22 @@ class AlphaEssCounter(AbstractCounter):
                 0x6, [modbus.ModbusDataType.INT_32] * 3, unit=self.__modbus_id)
             exported *= 10
             imported *= 10
+            imported, exported = self.peak_filter(power, imported, exported)
             currents = [val / 230 for val in self.__tcp_client.read_holding_registers(
                 0x0000, [ModbusDataType.INT_32]*3, unit=self.__modbus_id)]
+            counter_state = CounterState(
+                currents=currents,
+                imported=imported,
+                exported=exported,
+                power=power
+            )
         else:
             power = self.__tcp_client.read_holding_registers(0x0021, ModbusDataType.INT_32, unit=self.__modbus_id)
             exported, imported = [
                 val * 10 for val in self.__tcp_client.read_holding_registers(
                     0x0010, [ModbusDataType.INT_32] * 2, unit=self.__modbus_id
                 )]
+            imported, exported = self.peak_filter(power, imported, exported)
             frequency = self.__tcp_client.read_holding_registers(
                 0x001A, ModbusDataType.UINT_16, unit=self.__modbus_id) / 100
             currents = self.__tcp_client.read_holding_registers(
@@ -52,16 +63,14 @@ class AlphaEssCounter(AbstractCounter):
             powers = self.__tcp_client.read_holding_registers(
                 0x001b, [ModbusDataType.INT_32]*3, unit=self.__modbus_id)
             currents = scale_currents(currents, powers)
-        counter_state = CounterState(
-            currents=currents,
-            imported=imported,
-            exported=exported,
-            power=power
-        )
-        if 'powers' in locals():
-            counter_state.powers = powers
-        if 'frequency' in locals():
-            counter_state.frequency = frequency
+            counter_state = CounterState(
+                currents=currents,
+                imported=imported,
+                exported=exported,
+                power=power,
+                powers=powers,
+                frequency=frequency
+            )
         self.store.set(counter_state)
 
 
