@@ -45,7 +45,6 @@ class AlphaEssCounter(AbstractCounter):
                 val * 10 for val in self.__tcp_client.read_holding_registers(
                     0x0010, [ModbusDataType.INT_32] * 2, unit=self.__modbus_id
                 )]
-            # currents = [val / 230 for val in powers]
             frequency = self.__tcp_client.read_holding_registers(
                 0x001A, ModbusDataType.UINT_16, unit=self.__modbus_id) / 100
             currents = self.__tcp_client.read_holding_registers(
@@ -74,11 +73,11 @@ def scale_currents(currents, voltages, powers):
     scaled_currents = []
     for c, v, p in zip(currents, voltages, powers):
         if p == 0:
-            rounded_factor = 0
+            scaled_currents.append(0)
         else:
             factor = c * v / p
             rounded_factor = min(factors, key=lambda z: abs(factor - z))
-        scaled_currents.append(c / rounded_factor)
+            scaled_currents.append(c / rounded_factor)
 
     return scaled_currents
 
