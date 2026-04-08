@@ -49,10 +49,9 @@ class AlphaEssCounter(AbstractCounter):
                 0x001A, ModbusDataType.UINT_16, unit=self.__modbus_id) / 100
             currents = self.__tcp_client.read_holding_registers(
                 0x0017, [ModbusDataType.INT_16]*3, unit=self.__modbus_id)
-            voltages = [230, 230, 230]
             powers = self.__tcp_client.read_holding_registers(
                 0x001b, [ModbusDataType.INT_32]*3, unit=self.__modbus_id)
-            currents = scale_currents(currents, voltages, powers)
+            currents = scale_currents(currents, powers)
         counter_state = CounterState(
             currents=currents,
             imported=imported,
@@ -61,21 +60,19 @@ class AlphaEssCounter(AbstractCounter):
         )
         if 'powers' in locals():
             counter_state.powers = powers
-        if 'voltages' in locals():
-            counter_state.voltages = voltages
         if 'frequency' in locals():
             counter_state.frequency = frequency
         self.store.set(counter_state)
 
 
-def scale_currents(currents, voltages, powers):
+def scale_currents(currents, powers):
     factors = [-1000, -100, -10, 10, 100, 1000]
     scaled_currents = []
-    for c, v, p in zip(currents, voltages, powers):
+    for c, p in zip(currents, powers):
         if p == 0:
             scaled_currents.append(0)
         else:
-            factor = c * v / p
+            factor = c * 230 / p
             rounded_factor = min(factors, key=lambda z: abs(factor - z))
             scaled_currents.append(c / rounded_factor)
 
