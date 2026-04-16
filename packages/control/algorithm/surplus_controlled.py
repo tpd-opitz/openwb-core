@@ -120,6 +120,7 @@ class SurplusControlled:
         evse_current = chargepoint.data.get.evse_current
         if evse_current and chargepoint.data.set.current != chargepoint.data.set.current_prev:
             offset = evse_current - get_medium_charging_current(chargepoint.data.get.currents)
+            offset = min(offset, chargepoint.data.set.charging_ev_data.ev_template.data.nominal_difference)
             current_with_offset = chargepoint.data.set.current + offset
             current = min(current_with_offset, chargepoint.data.control_parameter.required_current)
             if current != chargepoint.data.set.current:
