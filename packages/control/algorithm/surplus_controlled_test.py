@@ -100,24 +100,23 @@ def test_set_required_current_to_max(phases: int,
 
 
 @pytest.mark.parametrize(
-    "evse_current, limited_current, max_current_change, expected_current",
+    "evse_current, limited_current, expected_current",
     [
-        pytest.param(None, 6, 2, 6, id="Kein Soll-Strom aus der EVSE ausgelesen"),
-        pytest.param(13, 13, 2, 13, id="Auto lädt mit Soll-Stromstärke"),
-        pytest.param(12.5, 12.5, 2, 12.0, id="Auto lädt mit 0.5A Abweichung von der Soll-Stromstärke"),
-        pytest.param(11.8, 11.8, 2, 10.600000000000001, id="Auto lädt mit mehr als Soll-Stromstärke"),
-        pytest.param(14.2, 14.2, 2, 15.399999999999999,
+        pytest.param(None, 6, 6, id="Kein Soll-Strom aus der EVSE ausgelesen"),
+        pytest.param(13, 13, 13, id="Auto lädt mit Soll-Stromstärke"),
+        pytest.param(12.5, 12.5, 12.0, id="Auto lädt mit 0.5A Abweichung von der Soll-Stromstärke"),
+        pytest.param(11.8, 11.8, 10.600000000000001, id="Auto lädt mit mehr als Soll-Stromstärke"),
+        pytest.param(14.2, 14.2, 15.399999999999999,
                      id="Auto lädt mit weniger als Soll-Stromstärke, "
                         "diff kleiner als max_current_change, aber EVSE-Begrenzung ist nicht erreicht."),
-        pytest.param(14.2, 14.2, 1, 15.2,
+        pytest.param(14.5, 14.2, 15.7,
                      id="Auto lädt mit weniger als Soll-Stromstärke, "
                         "diff größer als max_current_change, aber EVSE-Begrenzung ist nicht erreicht."),
-        pytest.param(15, 15, 2, 16,
+        pytest.param(15, 15, 16,
                      id="Auto lädt mit weniger als Soll-Stromstärke, aber EVSE-Begrenzung ist erreicht.")
     ])
 def test_add_unused_evse_current(evse_current: float,
                                  limited_current: float,
-                                 max_current_change: float,
                                  expected_current: float):
     # setup
     c = Chargepoint(0, None)
@@ -126,7 +125,6 @@ def test_add_unused_evse_current(evse_current: float,
     c.data.get.evse_current = evse_current
     c.data.control_parameter.required_current = 16
     c.data.set.current = limited_current
-    c.data.set.charging_ev_data.ev_template.data.nominal_difference = max_current_change
 
     # execution
     SurplusControlled()._fix_deviating_evse_current(c)
