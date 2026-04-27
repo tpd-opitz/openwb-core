@@ -46,7 +46,7 @@
     <div class="row no-wrap items-center justify-between q-mb-xs q-gutter-x-xs">
       <div class="col-auto">
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto q-mr-xs disable-zoom"
           label="-1,00"
           color="grey"
@@ -55,7 +55,7 @@
           @click="maxPrice.value = maxPrice.value - 1"
         />
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto q-mr-xs disable-zoom"
           label="-0,10"
           color="grey"
@@ -64,7 +64,7 @@
           @click="maxPrice.value = maxPrice.value - 0.1"
         />
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto disable-zoom"
           label="-0,01"
           color="grey"
@@ -83,7 +83,7 @@
       </div>
       <div class="col-auto">
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto q-mr-xs disable-zoom"
           label="+0,01"
           color="grey"
@@ -92,7 +92,7 @@
           @click="maxPrice.value = maxPrice.value + 0.01"
         />
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto q-mr-xs disable-zoom"
           label="+0,10"
           color="grey"
@@ -101,7 +101,7 @@
           @click="maxPrice.value = maxPrice.value + 0.1"
         />
         <q-btn
-          v-if="maxPrice.value"
+          v-if="maxPrice.value != null"
           class="col-auto disable-zoom"
           label="+1,00"
           color="grey"
